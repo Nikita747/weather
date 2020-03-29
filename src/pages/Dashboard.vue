@@ -18,13 +18,13 @@
           <div class="numbers" slot="content">
             <p>{{stats.dt | formatDate}}</p>
             <div class="temparature">
-              <b>{{stats.main.temp}}°C</b>
+              <b>{{stats.main.temp | roundUpTemp}}°C</b>
             </div>
             <div class="card-category">
-              <label>min:</label>&nbsp;&nbsp;{{stats.main.temp_min}}°C
+              <label>min:</label>&nbsp;&nbsp;{{stats.main.temp_min | roundUpTemp}}°C
             </div>
             <div class="card-category">
-              <label>max:</label>&nbsp;&nbsp;{{stats.main.temp_max}}°C
+              <label>max:</label>&nbsp;&nbsp;{{stats.main.temp_max | roundUpTemp}}°C
             </div>
           </div>
           <div class="stats" slot="footer">
@@ -33,7 +33,6 @@
             </span>
             <span class="float-right">
               <img class="border-white" src="@/assets/img/icon-compass.png" alt="..."> {{stats.wind.deg | degToCompass}}
-              <!-- <i class="fa fa-compass" aria-hidden="true"></i> {{stats.wind.deg | degToCompass}} -->
             </span>
           </div>
         </stats-card>
@@ -77,6 +76,9 @@ export default {
       var val = Math.floor((num / 22.5) + 0.5);
       var arr = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
       return arr[(val % 16)];
+    },
+    roundUpTemp (temp) {
+      return Math.round(temp)
     }
   },
   created () {
@@ -87,6 +89,9 @@ export default {
         this.$root.$emit('currentLocation', true);
       })
     }
+    /*
+      Event Listner for Geolocation, load data according to location coordinates.
+    */
     this.$root.$on('location', (location) => {
       this.loadMoreClicked = false;
       const { lat, lon } = location;
@@ -98,14 +103,23 @@ export default {
         this.setWeatherData(allData, todayData)
       }))
     });
+    /*
+      Event Listner for Geolocation Error
+    */
     this.$root.$on('locationError', () => {
       this.weatherData = [];
     })
   },
   methods: {
+    /*
+      Set current location coordinates into global store
+    */
     ...mapActions([
       "setLocation",
     ]),
+    /*
+      Initialize function
+    */
     init(id) {
       this.weatherData = [];
       axios.all([
@@ -115,6 +129,9 @@ export default {
         this.setWeatherData(allData, todayData)
       }))
     },
+    /*
+      convert full date into date and time
+    */
     dateSplit(date) {
       let _date = date.split(' ');
       return { date: _date[0], time: _date[1] } 
@@ -154,6 +171,9 @@ export default {
         }
       }
     },
+    /*
+      fetch weather data using city name
+    */
     fetchDataByCityName (name) {
       return axios.get(`${this.weather_api}/forecast?q=${name}&appid=${this.weather_appid}&units=metric`)
         .then((res) => {
@@ -166,6 +186,9 @@ export default {
           this.notify({ message: `Something's goes wrong!!`, type: 'danger'})
         })
     },
+    /*
+      fetch weather data using Geo coordinates
+    */
     fetchDataByGeoLocation (lat, lon) {
       return axios.get(`${this.weather_api}/forecast?lat=${lat}&lon=${lon}&appid=${this.weather_appid}&units=metric`)
         .then((res) => {
@@ -179,6 +202,9 @@ export default {
           this.notify({ message: `Something's goes wrong!!`, type: 'danger'})
         });
     },
+    /*
+      fetch today's accurate weather data
+    */
     fetchCurrentWeather (query) {
       return axios.get(`${this.weather_api}/weather?${query}&appid=${this.weather_appid}&units=metric`)
       .then((res) => {
@@ -186,14 +212,21 @@ export default {
       })
       .catch((err) => {
         console.error("=======error", err);
-        // this.notify({ message: `Something's goes wrong!!`, type: 'danger'})
       })
     },
+    /*
+      Input: Array
+      Output: Object
+      Group data according to one propery
+    */
     groupBy(xs, f) {
       return xs.reduce((r, v, i, a, k = f(v)) => ((r[k] || (r[k] = [])).push(v), r), {});
     }
   },
   watch: {
+    /*
+      Watch url changes, load weather data according to changes
+    */
     '$route.params.id': function (id) {
       this.loadMoreClicked = false;
       if (id) {
@@ -208,6 +241,9 @@ export default {
     }
   },
   beforeDestroy() {
+    /*
+      Turn off the Event Listners.
+    */
     this.$root.$off('location');
     this.$root.$off('locationError');
   }

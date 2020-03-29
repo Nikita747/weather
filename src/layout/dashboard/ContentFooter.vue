@@ -17,6 +17,9 @@
 <script>
 export default {
   methods: {
+    /*
+      Locate Me Handler
+    */
     handleLocateMe() {
       if (this.$route.path !== '/') this.$router.push('/');
       else this.getLocation();
@@ -25,16 +28,25 @@ export default {
       if (!string) return '';
       return string.charAt(0).toUpperCase() + string.slice(1);
     },
+    /*
+      GeoLocation Initialize method to get user coordinates
+    */
     getLocation() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(this.showPosition, this.showError); // navigator.geolocation.getCurrentPosition(showPosition);
       } else { 
         this.notifyVue('Geolocation is not supported by this browser.', 'danger')
       }
-    },    
+    },
+    /*
+      GeoLocation Success Handler, and emit current coordinates to laod weather data
+    */
     showPosition(position) {
       this.$root.$emit('location', { lat: position.coords.latitude, lon: position.coords.longitude });
     },
+    /*
+      GeoLocation Error Handler
+    */
     showError(error) {
       this.$root.$emit('locationError', true);
       switch(error.code) {
@@ -52,6 +64,9 @@ export default {
           break;
       }
     },
+    /*
+      To show the Notification on top-right corner
+    */
     notifyVue(message, type) {
       this.$notify({
         message: message,
@@ -60,6 +75,9 @@ export default {
     }
   },
   computed: {
+    /*
+      Set Active City Name into footer
+    */
     routeName() {
       let { name } = this.$route;
       name = this.$store.state.location.city || this.$route.params.id;
@@ -67,10 +85,16 @@ export default {
     }
   },
   created() {
+    /*
+      Event Listner to get Geo Coordinates
+    */
     this.$root.$on('currentLocation', () => {
       this.getLocation();
     })
   },
+  /*
+    Turn Off Event Listner before the component destroyed
+  */
   beforeDestroy() {
     this.$root.$off('currentLocation');
   }
