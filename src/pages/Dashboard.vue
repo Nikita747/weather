@@ -143,7 +143,12 @@ export default {
       const groupByDate = this.groupBy(list, (c) => c.date);
       
       for (let _date in groupByDate) {
-        groupByDate[_date].filter((ele) => (ele.time > time));
+        groupByDate[_date] = groupByDate[_date].filter((ele) => {
+          let startTime = moment(ele.time, 'HH:mm:ss');
+          let endTime = moment(time, 'HH:mm:ss');
+          return (startTime.isAfter(endTime))
+        });
+
         if (groupByDate[_date][0]) {
           this.weatherData.push(groupByDate[_date][0])
         }
