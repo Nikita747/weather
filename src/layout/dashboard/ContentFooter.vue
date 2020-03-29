@@ -18,7 +18,6 @@
 export default {
   methods: {
     handleLocateMe() {
-      console.log(this.$route.path)
       if (this.$route.path !== '/') this.$router.push('/');
       else this.getLocation();
     },
@@ -90,7 +89,6 @@ export default {
   },
   created() {
     this.$root.$on('currentLocation', () => {
-      console.log("=currentLocation")
       this.getLocation();
     })
   },
