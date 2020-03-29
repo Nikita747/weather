@@ -27,12 +27,10 @@
           ></sidebar-link>
         </slot>
       </ul>
-      <moving-arrow :move-y="arrowMovePx"></moving-arrow>
     </div>
   </div>
 </template>
 <script>
-import MovingArrow from "./MovingArrow.vue";
 import SidebarLink from "./SidebarLink";
 export default {
   props: {
@@ -79,7 +77,6 @@ export default {
     };
   },
   components: {
-    MovingArrow,
     SidebarLink
   },
   computed: {

@@ -34,27 +34,6 @@ export default {
     },    
     showPosition(position) {
       this.$root.$emit('location', { lat: position.coords.latitude, lon: position.coords.longitude });
-      // this.codeLatLng(position.coords.latitude, position.coords.longitude);
-    },
-    codeLatLng(lat, lng) {
-      const latlng = new window.google.maps.LatLng(lat, lng);
-      const geocoder = new window.google.maps.Geocoder();
-      geocoder.geocode({'latLng': latlng}, (results, status) => {
-        if(status == window.google.maps.GeocoderStatus.OK) {
-            if(results[0]) {
-              //formatted address
-              let address = results[0].formatted_address;
-              let val = address.split(',');
-              let city = val[val.length - 3];
-              let country = val[val.length - 2];
-              this.notifyVue(`${city} ${country}`)
-            } else {
-              this.notifyVue("No city found", 'danger')
-            }
-        } else {
-          this.notifyVue("Geocoder failed due to: " + status, 'danger')
-        }
-      });
     },
     showError(error) {
       this.$root.$emit('locationError', true);
